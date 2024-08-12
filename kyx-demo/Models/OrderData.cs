@@ -19,7 +19,7 @@ public class OrderData
 
     public string Email { get; set; }
 
-    public List<string> LicenseNumber { get; set; }
+    public List<int> LicenseNumber { get; set; }
 
     public string TerminalModel { get; set; }
 

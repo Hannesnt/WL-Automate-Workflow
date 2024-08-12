@@ -6,6 +6,8 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using kyx_demo.Models;
 using System.Text.RegularExpressions;
+using kyx_demo.Services;
+using System.Reflection.Metadata.Ecma335;
 
 namespace kyx_demo.Controllers
 {
@@ -13,96 +15,81 @@ namespace kyx_demo.Controllers
     [ApiController]
     public class SalesforceController : ControllerBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public SalesforceController(IHttpClientFactory httpClientFactory)
+        private readonly ISalesforceService _salesforceService;
+        private readonly ICCService _ccService;
+        private readonly IPdfService _pdfService;
+        private readonly IPdfBodyService _pdfBodyService;
+        private readonly ILabelService _labelService;
+        public SalesforceController(ISalesforceService salesforceService, ICCService ccService, IPdfService pdfService, IPdfBodyService pdfBodyService, ILabelService labelService)
         {
-            _httpClientFactory = httpClientFactory;
+            _salesforceService = salesforceService;
+            _ccService = ccService;
+            _pdfService = pdfService;
+            _pdfBodyService = pdfBodyService;
+            _labelService = labelService;
         }
 
-        [HttpGet(Name = "GetSalesforceCase")]
-        public async Task<IActionResult> Get()
+        [HttpGet(Name = "GetSalesforceData")]
+        public async Task<IActionResult> GetSalesforceData(string caseNumber)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "00D610000007qyq!AQEAQKv6ceGlyYqXQ9jVPp2wb9sOgjkS1Au_Eb7HgUCweeowjWngbul71ywnxIIY0n7jiIMn0npPAHITBgOufLGEN4aBYMdB");
-            var requestUrl = "https://bambora.my.salesforce.com/services/data/v61.0/sobjects/Case";
-
-            var response = await client.GetAsync(requestUrl);
-
-            //response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            client.Dispose();
-
-            var caseList = JsonSerializer.Deserialize<Cases>(content, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-
-            if (caseList != null)
-            {
-                var locatedUserCase = caseList.RecentItems.FirstOrDefault(x => x.CaseNumber == "02655042");
-
-                if (locatedUserCase != null)
-                {
-                    client = _httpClientFactory.CreateClient();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "00D610000007qyq!AQEAQKv6ceGlyYqXQ9jVPp2wb9sOgjkS1Au_Eb7HgUCweeowjWngbul71ywnxIIY0n7jiIMn0npPAHITBgOufLGEN4aBYMdB");
-
-                    requestUrl = $"https://bambora.my.salesforce.com/services/data/v61.0/sobjects/Case/{locatedUserCase.Id}";
-
-                    response = await client.GetAsync(requestUrl);
-                    content = await response.Content.ReadAsStringAsync();
-
-                    var userCaseData = JsonSerializer.Deserialize<Case>(content, new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    var caseDescriptionAsList = userCaseData?.Description.Split('\n');
-                    var (zipCode1, city1) = ExtractZipCodeAndCity(caseDescriptionAsList[16]);
-                    OrderData orderData = new OrderData
-                    {
-                        Package = caseDescriptionAsList[1],
-                        Country = caseDescriptionAsList[3],
-                        CustomerNumber = caseDescriptionAsList[8],
-                        CustomerName = caseDescriptionAsList[14],
-                        Address = caseDescriptionAsList[15],
-                        City = city1,
-                        PostalCode = zipCode1,
-                        PhoneNumber = caseDescriptionAsList[21],
-                        Email = caseDescriptionAsList[23],
-                        //LicenseNumber = 
-
-
-                    };
-                    var test = "string";
-                }
-                
-            }
-
-            
-
-
-
-            return Ok(content);
+            var data = await _salesforceService.GetDataAsync(caseNumber);
+            return Ok(data);
         }
-        public static (string ZipCode, string City) ExtractZipCodeAndCity(string input)
+
+        [HttpPost("CCDeliver")]
+        public async Task<IActionResult> CCDeliver(string caseNumber, string terminalId)
         {
-            // Regular expression to match zip code (numbers) followed by city (text)
-            var regex = new Regex(@"^(\d{3} ?\d{2})\s+(.+)$");
 
-            var match = regex.Match(input);
+            var salesforceData = await _salesforceService.GetDataAsync(caseNumber);
 
-            if (match.Success)
+            CCDeliver ccDeliverObject = new CCDeliver
             {
-                string zipCode = match.Groups[1].Value;
-                string city = match.Groups[2].Value;
+                AcquisitionType = 1, //Gör denna dynamisk
+                licenseId = salesforceData.LicenseNumber.FirstOrDefault()
+            };
 
-                return (zipCode, city);
+
+            var shipmentBody = await _pdfBodyService.CreatePdfBody(salesforceData);
+
+            var dhlResponse = await _labelService.CreateLabel(shipmentBody);
+
+            var printRequest = new ConvertAndPrintRequest
+            {
+                Base64String = dhlResponse.Documents[0].Content,
+                PrinterName = "ZDesigner GK420d (1)"
+            };
+
+            var printResponse = ConvertAndPrint(printRequest);
+
+            //var response = await _ccService.SendDataAsync(ccDeliverObject, terminalId);
+            return Ok("Data sent successfully");
+
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    return Ok("Data sent successfully");
+            //}
+
+            //return StatusCode((int)response.StatusCode, "Failed to send data");
+        }
+
+
+        [HttpPost("convert-and-print")]
+        public async Task<IActionResult> ConvertAndPrint(ConvertAndPrintRequest request)
+        {
+            try
+            {
+                await _pdfService.ConvertAndPrintPdfAsync(request.Base64String, request.PrinterName);
+                return Ok("PDF converted and sent to printer successfully.");
             }
-
-            // If the input string does not match the expected format, return null values
-            return (null, null);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+        public class ConvertAndPrintRequest
+        {
+            public string Base64String { get; set; }
+            public string PrinterName { get; set; }
         }
     }
 }

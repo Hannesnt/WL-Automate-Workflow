@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 
 public class Cases
 {
-    [JsonPropertyName("objectDescribe")]
-    public ObjectDescribe ObjectDescribe { get; set; }
+    //[JsonPropertyName("objectDescribe")]
+    //public ObjectDescribe ObjectDescribe { get; set; }
 
     [JsonPropertyName("recentItems")]
     public List<RecentItem> RecentItems { get; set; }

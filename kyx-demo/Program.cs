@@ -1,16 +1,22 @@
+using kyx_demo.Models;
+using kyx_demo.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddTransient<ISalesforceService, SalesforceService>();
+builder.Services.AddTransient<ICCService, CCService>();
+builder.Services.AddTransient<IPdfService, PdfService>();
+builder.Services.AddTransient<IPdfBodyService, PdfBodyService>();
+builder.Services.AddTransient<ILabelService, LabelService>();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
