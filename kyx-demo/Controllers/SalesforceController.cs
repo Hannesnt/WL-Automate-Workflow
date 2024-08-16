@@ -49,9 +49,9 @@ namespace kyx_demo.Controllers
             };
 
 
-            var shipmentBody = await _pdfBodyService.CreatePdfBody(salesforceData);
+            var shipmentBody = await _pdfBodyService.CreatePdfBodyAsync(salesforceData);
 
-            var dhlResponse = await _labelService.CreateLabel(shipmentBody);
+            var dhlResponse = await _labelService.CreateLabelAsync(shipmentBody);
 
             var printRequest = new ConvertAndPrintRequest
             {

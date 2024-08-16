@@ -14,10 +14,15 @@ public class PdfService :IPdfService
             string tempPdfPath = Path.Combine(Path.GetTempPath(), "label.pdf");
 
             await File.WriteAllBytesAsync(tempPdfPath, pdfBytes);
-
+            PrinterSettings settings = new PrinterSettings()
+            {
+                PrinterName = printerName,
+                Copies = 1
+            };
             var pdfDocument = PdfDocument.FromFile(tempPdfPath);
 
-            await PrintPdfAsync(pdfDocument, printerName);
+
+            await PrintPdfAsync(pdfDocument, settings);
 
             File.Delete(tempPdfPath);
         }
@@ -28,9 +33,9 @@ public class PdfService :IPdfService
             throw;
         }
     }
-    private async Task PrintPdfAsync(PdfDocument pdfDocument, string printerName)
+    private async Task PrintPdfAsync(PdfDocument pdfDocument, PrinterSettings settings)
     {
-
-        await Task.Run(() => pdfDocument.Print(300));
+        PrintDocument doc = pdfDocument.GetPrintDocument(settings);
+        await Task.Run(doc.Print);
     }
 }

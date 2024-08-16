@@ -4,6 +4,6 @@ namespace kyx_demo.Services
 {
     public interface IPdfBodyService
     {
-       Task<ShipmentRequest> CreatePdfBody(OrderData orderData);
+       Task<ShipmentRequest> CreatePdfBodyAsync(OrderData orderData);
     }
 }

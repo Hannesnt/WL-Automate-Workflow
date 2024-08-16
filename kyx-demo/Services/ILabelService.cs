@@ -4,5 +4,5 @@ namespace kyx_demo.Services;
 
 public interface ILabelService
 {
-    Task<ShipmentResponse> CreateLabel(ShipmentRequest shipment);
+    Task<ShipmentResponse> CreateLabelAsync(ShipmentRequest shipment);
 }

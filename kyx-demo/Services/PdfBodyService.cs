@@ -5,7 +5,7 @@ namespace kyx_demo.Services
 {
     public class PdfBodyService : IPdfBodyService
     {
-        public async Task<ShipmentRequest> CreatePdfBody(OrderData orderData)
+        public async Task<ShipmentRequest> CreatePdfBodyAsync(OrderData orderData)
         {
             // Call the private method to get receiver details synchronously
             var receiverDetails = AddReceiverDetails(orderData);
@@ -14,7 +14,7 @@ namespace kyx_demo.Services
 
             var shipment = new ShipmentRequest
             {
-                plannedShippingDateAndTime = "2024-08-09T16:00:31GMT+01:00",
+                plannedShippingDateAndTime = "2024-08-12T16:00:31GMT+01:00",
                 pickup = new Pickup { isRequested = false },
                 productCode = "B",
                 accounts = new List<Account>
@@ -25,11 +25,11 @@ namespace kyx_demo.Services
                 {
                     encodingFormat = "pdf",
                     imageOptions = new List<ImageOption>
-            {
-                new ImageOption { typeCode = "label", templateName = "ECOM26_84_A4_001",  isRequested = true  },
-                new ImageOption { typeCode = "waybillDoc", templateName = "ARCH_8X4_A4_002", isRequested = true },
-                new ImageOption { typeCode = "invoice", templateName = "COMMERCIAL_INVOICE_P_10", isRequested = true }
-            },
+                    {
+                        new ImageOption { typeCode = "label", templateName = "ECOM26_84_A4_001",  isRequested = true  },
+                        new ImageOption { typeCode = "waybillDoc", templateName = "ARCH_8X4_A4_002", isRequested = true },
+                        new ImageOption { typeCode = "invoice", templateName = "COMMERCIAL_INVOICE_P_10", isRequested = true }
+                    },
                     splitTransportAndWaybillDocLabels = true
                 },
                 customerDetails = new CustomerDetails
@@ -50,8 +50,8 @@ namespace kyx_demo.Services
                             email = "test@ddhl.com",
                             phone = "+1123456789",
                             mobilePhone = "239458585858",
-                            companyName = "Test shipment: DHL Japan.,",
-                            fullName = "Iikomu Jiro"
+                            companyName = "Worldline",
+                            fullName = "Hannes Testarlite"
                         }
                     },
                     receiverDetails = receiverDetails
@@ -59,56 +59,56 @@ namespace kyx_demo.Services
                 content = new Content
                 {
                     packages = new List<Package>
-            {
-                new Package
-                {
-                    weight = 22.5,
-                    dimensions = new Dimensions { length = 15, width = 15, height = 40 }
-                },
-                new Package
-                {
-                    weight = 22.5,
-                    dimensions = new Dimensions { length = 15, width = 15, height = 40 }
-                }
-            },
+                    {
+                        new Package
+                        {
+                            weight = 22.5,
+                            dimensions = new Dimensions { length = 15, width = 15, height = 40 }
+                        },
+                        new Package
+                        {
+                            weight = 22.5,
+                            dimensions = new Dimensions { length = 15, width = 15, height = 40 }
+                        }
+                    },
                     isCustomsDeclarable = true,
                     declaredValue = 1500,
                     declaredValueCurrency = "SEK",
                     exportDeclaration = new ExportDeclaration
                     {
                         lineItems = new List<LineItem>
-                {
-                    new LineItem
-                    {
-                        number = 1,
-                        description = "line item description 1",
-                        price = 500,
-                        quantity = new Quantity { value = 1, unitOfMeasurement = "BOX" },
-                        commodityCodes = new List<CommodityCode>
                         {
-                            new CommodityCode { typeCode = "inbound", value = "123456" },
-                            new CommodityCode { typeCode = "outbound", value = "123456" }
+                            new LineItem
+                            {
+                                number = 1,
+                                description = "line item description 1",
+                                price = 500,
+                                quantity = new Quantity { value = 1, unitOfMeasurement = "BOX" },
+                                commodityCodes = new List<CommodityCode>
+                                {
+                                    new CommodityCode { typeCode = "inbound", value = "123456" },
+                                    new CommodityCode { typeCode = "outbound", value = "123456" }
+                                },
+                                exportReasonType = "permanent",
+                                manufacturerCountry = "SG",
+                                weight = new Weight { netValue = 10, grossValue = 10 }
+                            },
+                            new LineItem
+                            {
+                                number = 2,
+                                description = "line item description 2",
+                                price = 1000,
+                                quantity = new Quantity { value = 1, unitOfMeasurement = "BOX" },
+                                commodityCodes = new List<CommodityCode>
+                                {
+                                    new CommodityCode { typeCode = "inbound", value = "123456" },
+                                    new CommodityCode { typeCode = "outbound", value = "123456" }
+                                },
+                                exportReasonType = "permanent",
+                                manufacturerCountry = "SG",
+                                weight = new Weight { netValue = 10, grossValue = 10 }
+                            }
                         },
-                        exportReasonType = "permanent",
-                        manufacturerCountry = "SG",
-                        weight = new Weight { netValue = 10, grossValue = 10 }
-                    },
-                    new LineItem
-                    {
-                        number = 2,
-                        description = "line item description 2",
-                        price = 1000,
-                        quantity = new Quantity { value = 1, unitOfMeasurement = "BOX" },
-                        commodityCodes = new List<CommodityCode>
-                        {
-                            new CommodityCode { typeCode = "inbound", value = "123456" },
-                            new CommodityCode { typeCode = "outbound", value = "123456" }
-                        },
-                        exportReasonType = "permanent",
-                        manufacturerCountry = "SG",
-                        weight = new Weight { netValue = 10, grossValue = 10 }
-                    }
-                },
                         invoice = new Invoice
                         {
                             number = "12345-ABC",
@@ -117,10 +117,10 @@ namespace kyx_demo.Services
                             signatureTitle = "Mr."
                         },
                         additionalCharges = new List<AdditionalCharge>
-                {
-                    new AdditionalCharge { value = 10, typeCode = "freight", caption = "freight charge" },
-                    new AdditionalCharge { value = 50, typeCode = "insurance", caption = "insurance charge" }
-                },
+                        {
+                            new AdditionalCharge { value = 10, typeCode = "freight", caption = "freight charge" },
+                            new AdditionalCharge { value = 50, typeCode = "insurance", caption = "insurance charge" }
+                        },
                         placeOfIncoterm = "Sweden",
                         exportReason = "Sales",
                         exportReasonType = "permanent",
@@ -162,8 +162,8 @@ namespace kyx_demo.Services
                 {
                     companyName = orderData.CustomerName,
                     email = orderData.Email,
-                    fullName = orderData.CustomerName,
-                    mobilePhone = "",
+                    fullName = "..",
+                    mobilePhone = "orderData.PhoneNumber",
                     phone = orderData.PhoneNumber
                     //companyName = "Västergök",
                     //email = "test@ddhl.com",
