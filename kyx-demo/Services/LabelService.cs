@@ -23,7 +23,7 @@ public class LabelService : ILabelService
     {
         using (var client = new HttpClient())
         {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "YXBIMnZaN3RLN2NXMmQ6REAzelQhMnNHQDBmT0A3Yw==");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "DHL_BASIC_AUTH");
 
 
             var json = JsonSerializer.Serialize(shipment);
