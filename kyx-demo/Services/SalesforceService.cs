@@ -87,7 +87,7 @@ namespace kyx_demo.Services
         {
             var client = _httpClientFactory.CreateClient();
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "M01WRzlLSTJISEFxMzNSeldBR0VHWVdDQ1ZpZmU4Y0g4RTJZYWs5U0pBd3I1aWhMaU1SSWtFMnpNOGl0QVo5Qk5US0hfQ0ZzTDF2LlRtejZvTUg3WDpDM0ZDOUM4QTk3REU5NTY4MzY5OTI1NEM2Qjk5RkRGNjcxQTRBQUQ0QjQ3RjAyOUY2RDk5OUNCRDg4RTE4MThD");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "SALESFORCE_BASIC_AUTH");
 
             var formData = new Dictionary<string, string>
             {
